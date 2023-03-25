@@ -1,0 +1,5 @@
+/train_model/dataset/
+/sample_generator/audio_clips/
+/sample_generator/resources/
+/sample_generator/melSpectrogram/
+/train_model/test_image/
