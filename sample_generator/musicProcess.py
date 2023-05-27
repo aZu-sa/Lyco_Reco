@@ -63,5 +63,59 @@ def generateMelSpectrogram(genre):
     pylab.close()
 
 
+def get_chroma_stft(y, sr):
+    chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
+    chroma_stft_mean = np.mean(chroma_stft)
+    chroma_stft_var = np.var(chroma_stft)
+    return chroma_stft_mean, chroma_stft_var
+
+
+def get_rms(y):
+    rms = librosa.feature.rms(y=y)
+    rms_mean = np.mean(rms)
+    rms_var = np.var(rms)
+    return rms_mean, rms_var
+
+
+def get_spectral_centroid(y, sr):
+    spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr)
+    spectral_centroid_mean = np.mean(spectral_centroid)
+    spectral_centroid_var = np.var(spectral_centroid)
+    return spectral_centroid_mean, spectral_centroid_var
+
+
+def get_spectral_bandwidth(y, sr):
+    spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
+    spectral_bandwidth_mean = np.mean(spectral_bandwidth)
+    spectral_bandwidth_var = np.var(spectral_bandwidth)
+    return spectral_bandwidth_mean, spectral_bandwidth_var
+
+
+def get_rolloff(y, sr):
+    rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
+    rf_mean = np.mean(rolloff)
+    rf_var = np.var(rolloff)
+    return rf_mean, rf_var
+
+
+def get_zero_crossing_rate(y):
+    zcr = librosa.feature.zero_crossing_rate(y)
+    return np.mean(zcr), np.var(zcr)
+
+
+def get_harmony(y):
+    harmony = librosa.effects.harmonic(y)
+    return np.mean(harmony), np.var(harmony)
+
+
+def get_perceptr():
+    pass
+
+
+def get_tempo(y, sr):
+    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+    return tempo
+
+
 if __name__ == "__main__":
     pass
