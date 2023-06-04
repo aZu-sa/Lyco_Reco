@@ -2,14 +2,16 @@ import os
 import re
 
 import joblib
-import librosa
 from pydub import AudioSegment
 from pydub.utils import make_chunks
 
 import sample_generator.musicProcess as mp
 
+import warnings
+warnings.filterwarnings("ignore")
 
-def devide():
+
+def divide():
     read_path = r"./sample_generator/resources/"
     output_path = r"./sample_generator/audio_clips/"
     for each in os.listdir(read_path):  # 循环目录
@@ -34,14 +36,22 @@ def predict():
     read_path = r"./sample_generator/audio_clips/"
     model_data_path = r"./saved-model/2023-6-4-17-30.pkl"
     rf = joblib.load(model_data_path)
+    print(rf.classes_)
+    proba = [0 for _ in range(len(rf.classes_))]
     for each in os.listdir(read_path):
         print(each)
         eigenvector = mp.get_eigenvector("{}{}".format(read_path, each))
-        print(eigenvector)
-        pre = rf.predict(eigenvector)
+        # print(eigenvector)
+        pre = rf.predict_proba(eigenvector)
         print(pre)
+        for idx in range(len(pre[0])):
+            proba[idx] += pre[0][idx]
+
+    return {rf.classes_[idx]: proba[idx] for idx in range(len(rf.classes_))}
 
 
-devide()
+divide()
 print()
-predict()
+proba = predict()
+print(proba)
+print(max(proba.items(), key=lambda x: x[1]))
