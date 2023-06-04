@@ -37,7 +37,8 @@ def predict():
     for each in os.listdir(read_path):
         print(each)
         eigenvector = mp.get_eigenvector("{}{}".format(read_path, each))
-        pre = rf.predict([eigenvector])
+        print(eigenvector)
+        pre = rf.predict(eigenvector)
         print(pre)
 
 
