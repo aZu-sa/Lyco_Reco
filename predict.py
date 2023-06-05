@@ -38,7 +38,7 @@ def divide():
 
 def predict():
     read_path = r"./sample_generator/audio_clips/"
-    model_data_path = r"./saved-model/2023-6-4-17-30.pkl"
+    model_data_path = r"./saved-model/2023-6-5-10-54-knn.pkl"
     rf = joblib.load(model_data_path)
     print(rf.classes_)
     proba = [0 for _ in range(len(rf.classes_))]
@@ -53,9 +53,15 @@ def predict():
 
     return {rf.classes_[idx]: proba[idx] for idx in range(len(rf.classes_))}
 
+def cleanAudio_clips(): # 新增自动清理
+    path = r"./sample_generator/audio_clips/"
+    for each in os.listdir(path):  # 循环目录
+        # filename = re.findall(r"(.*?)\.wav", each)  # 取出.wav后缀的文件名
+        os.remove("{}{}".format(path, each))
 
 divide()
 print()
 proba = predict()
 print(proba)
 print(max(proba.items(), key=lambda x: x[1]))
+cleanAudio_clips()
