@@ -60,6 +60,7 @@ matplotlib.use('Agg')  # No pictures displayed
 
 
 def get_chroma_stft(y, sr):
+    hop_length = 5000
     chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
     chroma_stft_mean = np.mean(chroma_stft)
     chroma_stft_var = np.var(chroma_stft)
@@ -110,7 +111,7 @@ def get_tempo(y, sr):
 
 
 def get_mfcc(y, sr):
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
+    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)#
     mfcc_means = list(map(np.mean, mfccs))
     mfcc_vars = list(map(np.var, mfccs))
     return mfcc_means, mfcc_vars
@@ -123,7 +124,7 @@ def get_eigenvector(path):
         @return: 返回音频文件对应的特征向量
     """
     y, sr = librosa.load(path)
-    y, _ = librosa.effects.trim(y)
+    # y, _ = librosa.effects.trim(y)
     # *y.shape
     eigenvector = [*y.shape, *get_chroma_stft(y, sr), *get_rms(y), *get_spectral_centroid(y, sr),
                    *get_spectral_bandwidth(y, sr),
