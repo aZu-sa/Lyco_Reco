@@ -43,7 +43,7 @@ def get_rolloff(y, sr):
 
 
 def get_zero_crossing_rate(y):
-    zcr = librosa.feature.zero_crossing_rate(y)
+    zcr = librosa.feature.zero_crossing_rate(y,pad=False)
     return np.mean(zcr), np.var(zcr)
 
 
@@ -58,7 +58,7 @@ def get_tempo(y, sr):
 
 
 def get_mfcc(y, sr):
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
+    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)#
     mfcc_means = list(map(np.mean, mfccs))
     mfcc_vars = list(map(np.var, mfccs))
     return mfcc_means, mfcc_vars
