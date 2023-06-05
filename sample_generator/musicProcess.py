@@ -95,7 +95,7 @@ def get_rolloff(y, sr):
 
 
 def get_zero_crossing_rate(y):
-    zcr = librosa.feature.zero_crossing_rate(y)
+    zcr = librosa.feature.zero_crossing_rate(y,pad=False)
     return np.mean(zcr), np.var(zcr)
 
 
@@ -123,6 +123,8 @@ def get_eigenvector(path):
         @return: 返回音频文件对应的特征向量
     """
     y, sr = librosa.load(path)
+    y, _ = librosa.effects.trim(y)
+    # *y.shape
     eigenvector = [*y.shape, *get_chroma_stft(y, sr), *get_rms(y), *get_spectral_centroid(y, sr),
                    *get_spectral_bandwidth(y, sr),
                    *get_rolloff(y, sr), *get_zero_crossing_rate(y), *get_harmony_and_perceptual(y), get_tempo(y, sr)]
@@ -130,7 +132,7 @@ def get_eigenvector(path):
     for i in range(20):
         eigenvector.append(mfcc[0][i])
         eigenvector.append(mfcc[1][i])
-    # print(eigenvector)
+    print(eigenvector)
     col = ["length", "chroma_stft_mean", "chroma_stft_var", "rms_mean", "rms_var", "spectral_centroid_mean",
            "spectral_centroid_var", "spectral_bandwidth_mean", "spectral_bandwidth_var", "rolloff_mean", "rolloff_var",
            "zero_crossing_rate_mean", "zero_crossing_rate_var", "harmony_mean", "harmony_var",

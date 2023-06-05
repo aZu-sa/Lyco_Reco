@@ -8,6 +8,7 @@ from pydub.utils import make_chunks
 import sample_generator.musicProcess as mp
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
@@ -15,8 +16,6 @@ def divide():
     read_path = r"./sample_generator/resources/"
     output_path = r"./sample_generator/audio_clips/"
     for each in os.listdir(read_path):  # 循环目录
-
-        filename = re.findall(r"(.*?)\.wav", each)  # 取出.wav后缀的文件名
         print(each)
         if each:
 
@@ -25,11 +24,16 @@ def divide():
             size = 30000  # 切割的毫秒数 10s=10000
 
             chunks = make_chunks(wav, size)  # 将文件切割为30s一块
-
-            for i, chunk in enumerate(chunks):
+            for i in range(len(chunks)):
+                if i == len(chunks) - 1:
+                    break
                 chunk_name = "{}-{}.wav".format(each.split(".")[0], i)  # 也可以自定义名字
                 print(chunk_name)
-                chunk.export('{}{}'.format(output_path, chunk_name), format="wav")  # 新建的保存文件夹
+                chunks[i].export('{}{}'.format(output_path, chunk_name), format="wav")  # 新建的保存文件夹
+            # for i, chunk in enumerate(chunks):
+            #     chunk_name = "{}-{}.wav".format(each.split(".")[0], i)  # 也可以自定义名字
+            #     print(chunk_name)
+            #     chunk.export('{}{}'.format(output_path, chunk_name), format="wav")  # 新建的保存文件夹
 
 
 def predict():
