@@ -4,54 +4,85 @@ import re
 import joblib
 from pydub import AudioSegment
 from pydub.utils import make_chunks
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import sample_generator.musicProcess as mp
 
 import warnings
+
 warnings.filterwarnings("ignore")
+
+
+def max_three(iterable, key):
+    __iter = sorted(iterable, key=key, reverse=True)
+    return __iter[-3:]
+
+
+def sort_key(x):
+    key = 0
+    base = 1
+    for idx in range(5, len(x)):
+        if '0' <= x[-idx] <= '9':
+            key = int(x[-idx]) * base
+            base *= 10
+    return key
+
+
+def generate_weight(data_len):
+    weight = [[n] for n in range(1, data_len + 1)]
+    for idx in range(data_len // 2, data_len):
+        weight[idx] = weight[data_len - idx - 1]
+    weight.insert(0, [0])
+    weight.append([0])
+    return weight
 
 
 def divide():
     read_path = r"./sample_generator/resources/"
     output_path = r"./sample_generator/audio_clips/"
-    for each in os.listdir(read_path):  # 循环目录
-
-        filename = re.findall(r"(.*?)\.wav", each)  # 取出.wav后缀的文件名
-        print(each)
+    for each in os.listdir(read_path):
         if each:
-
-            wav = AudioSegment.from_file('{}{}'.format(read_path, each), "wav")  # 打开wav文件
-            # mp3[17*1000+500:].export(filename[0], format="mp3") # 切割前17.5秒并覆盖保存，与以下代码不可同时使用
-            size = 30000  # 切割的毫秒数 10s=10000
-
-            chunks = make_chunks(wav, size)  # 将文件切割为30s一块
-
+            wav = AudioSegment.from_file('{}{}'.format(read_path, each), "wav")
+            size = 30000
+            chunks = make_chunks(wav, size)
             for i, chunk in enumerate(chunks):
-                chunk_name = "{}-{}.wav".format(each.split(".")[0], i)  # 也可以自定义名字
-                print(chunk_name)
-                chunk.export('{}{}'.format(output_path, chunk_name), format="wav")  # 新建的保存文件夹
+                chunk_name = "{}-{}.wav".format(each.split(".")[0], i)
+                chunk.export('{}{}'.format(output_path, chunk_name), format="wav")
 
 
 def predict():
     read_path = r"./sample_generator/audio_clips/"
-    model_data_path = r"./saved-model/2023-6-4-17-30.pkl"
-    rf = joblib.load(model_data_path)
-    print(rf.classes_)
-    proba = [0 for _ in range(len(rf.classes_))]
-    for each in os.listdir(read_path):
-        print(each)
+    model_data_path = r"./saved-model/2023-6-5-12-05-ada.pkl"
+    model = joblib.load(model_data_path)
+    # print(model.classes_)
+    proba = [0 for _ in range(len(model.classes_))]
+
+    stdsc = StandardScaler()
+    weight = generate_weight(len(os.listdir(read_path)))
+    weight = stdsc.fit_transform(weight)
+    m = min(weight, key=lambda x: x[0])[0]
+    for idx in range(len(weight)):
+        weight[idx][0] -= m
+    weight = weight.T[0]
+    print(weight)
+    _idx = 1
+    clips = os.listdir(read_path)
+    clips = sorted(clips, key=sort_key)
+    for each in clips:
+        # print(each)
         eigenvector = mp.get_eigenvector("{}{}".format(read_path, each))
         # print(eigenvector)
-        pre = rf.predict_proba(eigenvector)
-        print(pre)
-        for idx in range(len(pre[0])):
-            proba[idx] += pre[0][idx]
+        pre = model.predict_proba(eigenvector)[0]
+        # print(pre)
+        for idx in range(len(pre)):
+            proba[idx] += pre[idx] * weight[_idx]
+        _idx += 1
 
-    return {rf.classes_[idx]: proba[idx] for idx in range(len(rf.classes_))}
+    return {model.classes_[idx]: proba[idx] for idx in range(len(model.classes_))}
 
 
 divide()
-print()
+# print()
 proba = predict()
-print(proba)
-print(max(proba.items(), key=lambda x: x[1]))
+# print(proba)
+print(max_three(proba.items(), key=lambda x: x[1]))
